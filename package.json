@@ -1,0 +1,15 @@
+{
+  "name": "randm-game",
+  "version": "1.0.0",
+  "description": "A mathematical model of the Monty Hall problem with provably fair random generation.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "classic": "node index.js 3 ./src/morties/ClassicMorty.js ClassicMorty",
+    "lazy": "node index.js 3 ./src/morties/LazyMorty.js LazyMorty"
+  },
+  "dependencies": {
+    "cli-table3": "^0.6.3"
+  },
+  "type": "module"
+}
