@@ -14,7 +14,11 @@ export class RandomProtocol {
             this.rl = rl;
             this._ownsRl = false;
         } else {
-            this.rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+            this.rl = readline.createInterface({ 
+                input: process.stdin, 
+                output: process.stdout,
+                terminal: false 
+            });
             this._ownsRl = true;
         }
     }
@@ -33,9 +37,11 @@ export class RandomProtocol {
             
             try {
                 this.rl.question(question, (answer) => {
-                    const value = parseInt(answer.trim(), 10);
-                    if (isNaN(value) || value < min || value >= max) {
-                        console.log(`\nMorty: Aw jeez, Rick, that's not a valid number. It must be an integer in the range ${range}.\n`);
+                    const trimmed = answer.trim();
+                    const value = parseInt(trimmed, 10);
+                    
+                    if (trimmed === '' || isNaN(value) || value < min || value >= max) {
+                        console.log(`\nMorty: Aw jeez, Rick, that's not a valid number. Please enter a number between ${min} and ${max - 1}.\n`);
                         resolve(this.#getUserInput(min, max, promptMessage)); // Retry
                     } else {
                         resolve(value);
@@ -71,7 +77,7 @@ export class RandomProtocol {
         console.log(`\n${this.mortyName}: I'm using this for ${purpose}.`);
         
         // 4. Ask the user for Rick's value
-        const rickValue = await this.#getUserInput(0, N, 'so you don’t whine later that I cheated, alright?');
+        const rickValue = await this.#getUserInput(0, N, 'so you don\'t whine later that I cheated, alright?');
 
         // 5. Compute the final result using modular arithmetic
         const finalResult = (mortyValue + rickValue) % N;

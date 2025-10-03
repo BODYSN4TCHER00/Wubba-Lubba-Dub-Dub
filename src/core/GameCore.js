@@ -6,7 +6,8 @@ import Table from 'cli-table3';
 // Setup readline interface (shared with RandomProtocol for single process input)
 const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
+    terminal: false
 });
 
 /**
@@ -33,19 +34,25 @@ export class GameCore {
      * @returns {Promise<number>} Rick's validated choice.
      */
     async #getRickChoice(N, promptMessage) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const range = `[0,${N})`;
             const question = `\nMorty: ${promptMessage} [0,${N})?\nRick: `;
             
-            this.rl.question(question, (answer) => {
-                const choice = parseInt(answer.trim(), 10);
-                if (isNaN(choice) || choice < 0 || choice >= N) {
-                    console.log(`\nMorty: Aww geez, Rick, that's not a box. Select a number in the range ${range}.\n`);
-                    resolve(this.#getRickChoice(N, promptMessage)); // Retry
-                } else {
-                    resolve(choice);
-                }
-            });
+            try {
+                this.rl.question(question, (answer) => {
+                    const trimmed = answer.trim();
+                    const choice = parseInt(trimmed, 10);
+                    
+                    if (trimmed === '' || isNaN(choice) || choice < 0 || choice >= N) {
+                        console.log(`\nMorty: Aww geez, Rick, that's not a valid choice. Please enter a number between 0 and ${N - 1}.\n`);
+                        resolve(this.#getRickChoice(N, promptMessage)); // Retry
+                    } else {
+                        resolve(choice);
+                    }
+                });
+            } catch (err) {
+                reject(new Error('Input stream is not available. Please run the game interactively in a terminal.'));
+            }
         });
     }
 
@@ -65,7 +72,7 @@ export class GameCore {
         // --- 2. Rick's Initial Guess ---
         const initialRickGuess = await this.#getRickChoice(
             this.numBoxes, 
-            'Okay, okay, I hid the gun. What’s your guess'
+            'Okay, okay, I hid the gun. What\'s your guess'
         );
 
         // --- 3. Morty Removes Empty Boxes ---
@@ -78,7 +85,7 @@ export class GameCore {
 
         // Sanity check: must be exactly two boxes left
         if (remainingBoxes.length !== 2) {
-            throw new Error(`Internal Error: Morty's removal strategy left ${remainingBoxes.length} boxes instead of 2.`);
+            throw new Error(`Game error: The Morty implementation has a bug. Please contact the developer.`);
         }
         
         // Find the "other" box (the one Rick didn't initially pick)
@@ -118,18 +125,23 @@ export class GameCore {
      * @returns {Promise<boolean>} True to play again, false to exit.
      */
     async #promptAnotherRound() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const question = `\n${this.mortyName}: D-do you wanna play another round (y/n)?\nRick: `;
-            this.rl.question(question, (answer) => {
-                const response = answer.trim().toLowerCase();
-                if (response === 'y' || response === 'yes') {
-                    resolve(true);
-                } else if (response === 'n' || response === 'no') {
-                    resolve(false);
-                } else {
-                    resolve(this.#promptAnotherRound()); // Retry
-                }
-            });
+            try {
+                this.rl.question(question, (answer) => {
+                    const response = answer.trim().toLowerCase();
+                    if (response === 'y' || response === 'yes') {
+                        resolve(true);
+                    } else if (response === 'n' || response === 'no') {
+                        resolve(false);
+                    } else {
+                        console.log(`\nMorty: Aw jeez, Rick! Please enter 'y' for yes or 'n' for no.\n`);
+                        resolve(this.#promptAnotherRound()); // Retry
+                    }
+                });
+            } catch (err) {
+                reject(new Error('Input stream is not available. Please run the game interactively in a terminal.'));
+            }
         });
     }
 

@@ -18,21 +18,29 @@ export class MortyLoader {
             const MortyClass = module[mortyClassName];
 
             if (!MortyClass) {
-                throw new Error(`Class "${mortyClassName}" not found in file: ${mortyPath}.`);
+                throw new Error(`The class "${mortyClassName}" was not found in the file "${mortyPath}". Please check that the class name is correct and the file exists.`);
             }
             
             // Simple check to ensure it's a class and is a subclass of AbstractMorty
             if (!(MortyClass.prototype instanceof AbstractMorty)) {
-                throw new Error(`Class "${mortyClassName}" must extend AbstractMorty.`);
+                throw new Error(`The class "${mortyClassName}" must extend AbstractMorty. Please make sure your Morty implementation extends the correct base class.`);
             }
 
             return MortyClass;
 
         } catch (e) {
-            if (e.code === 'ERR_MODULE_NOT_FOUND' || e.message.includes('not found')) {
-                 throw new Error(`Morty implementation file not found at: ${mortyPath}.`);
+            // Check if it's a class not found error (from our throw above)
+            if (e.message.includes('was not found in the file') || e.message.includes('must extend AbstractMorty')) {
+                throw e; // Re-throw our custom errors
             }
-            throw new Error(`Failed to load Morty implementation: ${e.message}`);
+            
+            // Check if it's a file not found error
+            if (e.code === 'ERR_MODULE_NOT_FOUND' || e.message.includes('not found')) {
+                 throw new Error(`The Morty implementation file was not found at "${mortyPath}". Please check that the file path is correct and the file exists.`);
+            }
+            
+            // Generic error
+            throw new Error(`Unable to load the Morty implementation from "${mortyPath}". Please check that the file exists and contains a valid Morty class.`);
         }
     }
 }

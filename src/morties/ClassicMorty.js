@@ -65,7 +65,7 @@ export class ClassicMorty extends AbstractMorty {
         }
 
         if (boxesToRemove.length !== countToRemove) {
-             throw new Error(`ClassicMorty removal logic failed. Removed ${boxesToRemove.length} instead of ${countToRemove}`);
+             throw new Error(`Game error: The ClassicMorty implementation has a bug. Please contact the developer.`);
         }
         
         return boxesToRemove;

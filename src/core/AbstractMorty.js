@@ -27,7 +27,7 @@ export class AbstractMorty {
      * @returns {number[]} The indices of the N - 2 boxes to be removed.
      */
     removeEmptyBoxes(initialRickGuess, portalGunLocation) {
-        throw new Error("Method 'removeEmptyBoxes()' must be implemented by the subclass.");
+        throw new Error("This Morty implementation is incomplete. The removeEmptyBoxes method must be implemented.");
     }
 
     /**
@@ -36,7 +36,7 @@ export class AbstractMorty {
      * @returns {{switchWin: number, stayWin: number}} Theoretical probabilities (0 to 1).
      */
     calculateTheoreticalProbabilities() {
-        throw new Error("Method 'calculateTheoreticalProbabilities()' must be implemented by the subclass.");
+        throw new Error("This Morty implementation is incomplete. The calculateTheoreticalProbabilities method must be implemented.");
     }
     
     /**
